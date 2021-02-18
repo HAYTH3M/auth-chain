@@ -20,7 +20,7 @@
     d- keycloak-db               ==> A simple postgresql database; you can use mysql or any SQL database if you want to.
     e- whoami1                   ==> An unsecure application that we aim to secure using this environement.
     
-## 4- Port mapping
+## 3- Port mapping
   ##### Make sure that these ports are available, before running the docker-compose or any container:
   #
     a- traefik              ==> 80/tcp, 443/tcp, 9000/tcp
@@ -28,7 +28,7 @@
     c- keycloak-db          ==> 5432/tcp 
     d- whoami1              ==> 4000/tcp    
 
-## 5- Usage
+## 4- Usage
   ##### To use this environement, you need to :
   ```
   a- Clone the repo : git clone https://github.com/HAYTH3M/auth-chain.git
