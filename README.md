@@ -1,5 +1,5 @@
-## Simple auth-chain environement.
-Authentification chain using :
+# Simple auth-chain environement.
+## An authentification chain using :
 - traefik 
 - traefik-forward-auth
 - keycloak 
@@ -29,10 +29,13 @@ Authentification chain using :
     d- whoami1              ==> 4000/tcp    
 
 ## 5- Usage
-  ##### To use this environement, you need to use :
+  ##### To use this environement, you need to :
   ```
   a- Clone the repo : git clone https://github.com/HAYTH3M/auth-chain.git
-  b- Create docker network : docker network create auth-stack && docker network create appl-stack
-  c- Bring it up : docker-compose down && docker-compose up -d
+  b- Create the docker networks : docker network create auth-stack && docker network create appl-stack
+  d- Bring the whole env up : docker-compose down && docker-compose up -d
+  f- Create a realm under : http://YOUR-VM-IP:8080/auth/admin/master/console/#/realms/master 
+  e- Create a client under : http://YOUR-VM-IP:8080/auth/admin/YOUR-CREATED-REALM/console/#/realms/YOUR-CREATED-REALM/clients
+     You can follow this guide for realm and client setup : https://github.com/ibuetler/docker-keycloak-traefik-workshop
+  g- Use the params in the docker-compose under the traefik-forward-auth config and restart the traefik-forward-auth container.
   ```
-## 6- You will find that I actually pushed my database files and setup but in case you need to restart everything from scratch, do the following
