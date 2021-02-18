@@ -33,9 +33,10 @@
   ```
   a- Clone the repo : git clone https://github.com/HAYTH3M/auth-chain.git
   b- Create the docker networks : docker network create auth-stack && docker network create appl-stack
-  d- Bring the whole env up : docker-compose down && docker-compose up -d
-  f- Create a realm under : http://YOUR-VM-IP:8080/auth/admin/master/console/#/realms/master 
+  c- Bring the whole env up : docker-compose down && docker-compose up -d
+  d- Create a realm under : http://YOUR-VM-IP:8080/auth/admin/master/console/#/realms/master 
   e- Create a client under : http://YOUR-VM-IP:8080/auth/admin/YOUR-CREATED-REALM/console/#/realms/YOUR-CREATED-REALM/clients
      You can follow this guide for realm and client setup : https://github.com/ibuetler/docker-keycloak-traefik-workshop
-  g- Use the params in the docker-compose under the traefik-forward-auth config and restart the traefik-forward-auth container.
+  f- Use the params in the docker-compose under the traefik-forward-auth config and restart the traefik-forward-auth container.
+  g- try to access http://YOUR-VM-IP/ ; you will be redirected to the authentification page for the realm created under keycloak. 
   ```
