@@ -1,0 +1,17 @@
+# Endpoint = http
+http:
+  # We are going to define a middlware
+  middlewares:
+    # Called auth-whoami-with-keyclo, you can set the name to whatever you want.
+    auth-whoami-with-keyclo:
+      # The middlware to use, all middlewares documentation can be found here: https://doc.traefik.io/traefik/middlewares/overview/
+      # forwardAuth is simple, it forwards the request to an auth service.
+      # if the service returns an oauth2 message = ok, then it let's the request pass.
+      forwardAuth:
+        # The auth server, to forward the request to.
+        # It's set to our traefik-forward-auth
+        address: "http://traefik-forward-auth:4181"
+        # The Response Headers to accept from the traefik-forward-auth auth server.
+        authResponseHeaders: 
+          - "X-Forwarded-User"
+        trustForwardHeader: true

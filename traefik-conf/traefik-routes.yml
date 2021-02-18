@@ -1,0 +1,15 @@
+# Endpoint = http
+http:
+  # We are going to setup a router
+  routers:
+    # Called whoami1-routing, you can set the name to whatever you want.
+    whoami1-routing:
+      # The rule, when are we going to use this router.
+      # PathPrefix(`/`) means any request to "/"
+      rule: PathPrefix(`/`)
+      # The service we are going to route the client to if the rule is matched.
+      service: whoami1-workdir@docker
+      # The middlwares to apply, what do we want to do with the request before hitting the service.
+      middlewares:
+        # We are going to use auth-whoami-with-keyclo which is defined under traefik-conf/traefik-middlewares.yml
+        - "auth-whoami-with-keyclo"     

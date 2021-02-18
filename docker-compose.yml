@@ -1,0 +1,119 @@
+version: '3'
+
+services:
+  traefik:
+    image: traefik:v2.4
+    hostname: traefik.tritux.com
+    container_name: traefik
+    command: --api.insecure=true --providers.docker
+    ports:
+      # The HTTP entrypoint port
+      - "80:80"
+      # The HTTPs entrypoint port
+      - "443:443"
+      # Traefik dashboard
+      - "9000:8080"
+    volumes:
+      # Docker provider socket
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Traefik root config file
+      - ./traefik-config.yml:/etc/traefik/traefik.yml
+      # Traefik provider "file" directory
+      # You can put here, your routing and middlware files
+      - ./traefik-conf:/etc/traefik/conf
+    networks:
+      appl-stack:
+      auth-stack:
+
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:12.0.2
+    hostname: auth.tritux.com
+    container_name: keycloak
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+    environment:
+      # Setup your env here for keycloak, change database params and admin user. 
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=admin
+      - DB_VENDOR=POSTGRES
+      - DB_ADDR=keycloak-db
+      - DB_DATABASE=keycloak
+      - DB_PORT=5432
+      - DB_USER=keycloak
+      - DB_SCHEMA=public
+      - DB_PASSWORD=keycloak
+    networks:
+      auth-stack:
+
+
+  # You can use this container for data persistence
+  # If you dont, everytime you restart the keycloak container, your data will be lost.
+  keycloak-db:
+    image: postgres:latest
+    container_name: keycloak-db
+    environment:
+      - POSTGRES_DB=keycloak
+      - POSTGRES_USER=keycloak
+      - POSTGRES_PASSWORD=keycloak
+      - POSTGRES_ROOT_PASSWORD=root
+    volumes:
+      # Persist data
+      - ./keycloak-db-data:/var/lib/postgresql/data
+    ports:
+      # You can choose to expose the psql port outside, you can remove it too.
+      # keycloak and keycloak-db communicate through internal network (auth-stack).
+      - "5432:5432"
+    labels:
+      - "traefik.enable=false"
+    networks:
+      auth-stack:
+
+
+  # Our OIDC / Oauth2 compatible little proxy, you can use anyone you like.
+  # This one is cookie based, you can use jwt based or whatever you want.
+  traefik-forward-auth:
+    image: thomseddon/traefik-forward-auth:2
+    container_name: traefik-forward-auth
+    environment:
+      # A random secret you can set to whatever you want
+      - SECRET=random-secret
+      # Default provider, can be oidc, Google, Microsoft, etc..
+      - DEFAULT_PROVIDER=oidc
+      # Our OIDC + realm URL, after configuration from keycloak
+      - PROVIDERS_OIDC_ISSUER_URL=http://10.0.0.150:8080/auth/realms/tty-realm
+      # Our Client ID
+      - PROVIDERS_OIDC_CLIENT_ID=tty-client
+      # Our Client Secret
+      - PROVIDERS_OIDC_CLIENT_SECRET=bdbd1ae4-0f54-4b09-a623-4a936b3b28e2
+      # Set INSECURE_COOKIE=true if you are not using SSL / HTTPS.
+      # Don't do this in prod.
+      - INSECURE_COOKIE=true
+      # traefik-forward-auth Cookie name, it will look for it to know if the application is authed or not.
+      - COOKIE_NAME=TRITUX_AUTHED_COOKIE
+      # Log level.
+      - LOG_LEVEL=debug
+      # The redirect_uri, where you want to redirect the user after a successful login.
+      # This redirect_uri must be of course authorized in keycloak.
+     # - URL_PATH=/authed_traefik_forward_auth_redirect
+    networks:
+      auth-stack:
+
+
+  whoami1:
+    # An unsecure container that exposes an API to show its IP address
+    image: traefik/whoami
+    hostname: whoami1.tritux.com
+    container_name: whoami1
+    ports:
+      - 4000:80
+    networks:
+      appl-stack:
+
+
+networks:
+  appl-stack:
+    external: true
+  auth-stack:
+    external: true
